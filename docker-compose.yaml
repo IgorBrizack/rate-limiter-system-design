@@ -6,8 +6,8 @@ services:
     environment:
       - BACKEND_PORT=8100
     command: ["/main"]
-    expose:
-      - "8100"
+    ports:
+      - "8100:8100"
     networks:
       - rate_limiter_network
     depends_on:
