@@ -9,22 +9,22 @@ import (
 )
 
 type Middleware struct {
-	Limiter *TokenBucketLimiter
-	Max     int
-	Rate    float64
+	TokenBucketLimiter *TokenBucketLimiter
+	Max                int
+	Rate               float64
 }
 
 func NewMiddleware(cacheDB *redis.Client, maxTokens int, refillRate float64) *Middleware {
 	return &Middleware{
-		Limiter: NewTokenBucketLimiter(cacheDB),
-		Max:     maxTokens,
-		Rate:    refillRate,
+		TokenBucketLimiter: NewTokenBucketLimiter(cacheDB),
+		Max:                maxTokens,
+		Rate:               refillRate,
 	}
 }
 
 func (m *Middleware) TokenBucketHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		allowed, tokensLeft, err := m.Limiter.AllowRequest(context.Background(), c.ClientIP(), m.Max, m.Rate)
+		allowed, tokensLeft, err := m.TokenBucketLimiter.AllowRequest(context.Background(), c.ClientIP(), m.Max, m.Rate)
 
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
