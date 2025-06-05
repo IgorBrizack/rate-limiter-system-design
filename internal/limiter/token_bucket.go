@@ -43,8 +43,8 @@ func NewTokenBucketLimiter(cacheDB *redis.Client) *TokenBucketLimiter {
 	}
 }
 
-func (l *TokenBucketLimiter) AllowRequest(ctx context.Context, IPAdress string, maxTokens int, refillRate float64) (bool, int, error) {
-	key := fmt.Sprintf("token_bucket:%s", IPAdress)
+func (l *TokenBucketLimiter) AllowRequest(ctx context.Context, IPAddress string, maxTokens int, refillRate float64) (bool, int, error) {
+	key := fmt.Sprintf("token_bucket:%s", IPAddress)
 	now := time.Now().Unix()
 
 	const consume = 1
