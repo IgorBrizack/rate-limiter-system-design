@@ -39,7 +39,6 @@ func (m *Middleware) TokenBucketHandler() gin.HandlerFunc {
 			return
 		}
 
-		// Tudo certo, continua para o próximo handler
 		c.Next()
 	}
 }
