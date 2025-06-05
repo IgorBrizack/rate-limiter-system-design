@@ -43,13 +43,13 @@ func NewTokenBucketLimiter(cacheDB *redis.Client) *TokenBucketLimiter {
 	}
 }
 
-func (l *TokenBucketLimiter) AllowRequest(ctx context.Context, redisClient *redis.Client, IPAdress string, maxTokens int, refillRate float64) (bool, int, error) {
+func (l *TokenBucketLimiter) AllowRequest(ctx context.Context, IPAdress string, maxTokens int, refillRate float64) (bool, int, error) {
 	key := fmt.Sprintf("token_bucket:%s", IPAdress)
 	now := time.Now().Unix()
 
 	const consume = 1
 
-	res, err := redisClient.Eval(ctx, tokenBucketLua,
+	res, err := l.cacheDB.Eval(ctx, tokenBucketLua,
 		[]string{key},
 		maxTokens,
 		refillRate,

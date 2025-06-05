@@ -7,6 +7,7 @@ import (
 
 	"github.com/IgorBrizack/rate-limiter-system-design/internal/controller"
 	"github.com/IgorBrizack/rate-limiter-system-design/internal/database"
+	"github.com/IgorBrizack/rate-limiter-system-design/internal/limiter"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -30,8 +31,10 @@ func main() {
 
 	router := gin.Default()
 
-	router.GET("/users", userController.GetUsers)
-	router.POST("/users", userController.CreateUser)
+	rateLimiter := limiter.NewMiddleware(cacheDB, 3, 1.0)
+
+	router.GET("/users", rateLimiter.TokenBucketHandler(), userController.GetUsers)
+	router.POST("/users", rateLimiter.TokenBucketHandler(), userController.CreateUser)
 
 	fmt.Printf("Running on %s\n", port)
 	router.Run(":" + port)
