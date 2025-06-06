@@ -31,10 +31,10 @@ func main() {
 
 	router := gin.Default()
 
-	rateLimiter := limiter.NewMiddleware(cacheDB, 3, 1.0)
+	rateLimiter := limiter.NewMiddleware(cacheDB)
 
-	router.GET("/users", rateLimiter.TokenBucketHandler(), userController.GetUsers)
-	router.POST("/users", rateLimiter.TokenBucketHandler(), userController.CreateUser)
+	router.GET("/users", rateLimiter.LeakingBucketHandler(1, 1.0), userController.GetUsers)
+	router.POST("/users", rateLimiter.LeakingBucketHandler(1, 1.0), userController.CreateUser)
 
 	fmt.Printf("Running on %s\n", port)
 	router.Run(":" + port)
