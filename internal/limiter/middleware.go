@@ -39,8 +39,7 @@ func (m *Middleware) TokenBucketHandler(max int, rate float64) gin.HandlerFunc {
 		if !allowed {
 			c.Header("X-RateLimit-Retry-After", fmt.Sprintf("%.0f", 1.0/rate))
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
-				"error":       "Too many requests",
-				"tokens_left": tokensLeft,
+				"error": "Too many requests",
 			})
 			return
 		}
@@ -64,8 +63,7 @@ func (m *Middleware) LeakingBucketHandler(max int, rate float64) gin.HandlerFunc
 		if !allowed {
 			c.Header("X-RateLimit-Retry-After", fmt.Sprintf("%.0f", 1.0/rate))
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
-				"error":       "Too many requests",
-				"tokens_left": tokensLeft,
+				"error": "Too many requests",
 			})
 			return
 		}
@@ -90,9 +88,7 @@ func (m *Middleware) FixedWindowHandler(windowSize time.Duration, limit int) gin
 		if !allowed {
 			c.Header("X-RateLimit-Retry-After", fmt.Sprintf("%.0f", windowSize.Seconds()))
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
-				"error":         "Rate limit exceeded",
-				"requests_left": remaining,
-				"retry_after_s": int(windowSize.Seconds()),
+				"error": "Rate limit exceeded",
 			})
 			return
 		}
