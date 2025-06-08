@@ -19,6 +19,4 @@ RUN go mod tidy
 
 COPY . .
 
-EXPOSE 2345
-
 ENTRYPOINT ["air", "-c", "air.toml"]

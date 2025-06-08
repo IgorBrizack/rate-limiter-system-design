@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/IgorBrizack/rate-limiter-system-design/internal/controller"
 	"github.com/IgorBrizack/rate-limiter-system-design/internal/database"
+	"github.com/IgorBrizack/rate-limiter-system-design/internal/limiter"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -30,8 +32,10 @@ func main() {
 
 	router := gin.Default()
 
-	router.GET("/users", userController.GetUsers)
-	router.POST("/users", userController.CreateUser)
+	rateLimiter := limiter.NewMiddleware(cacheDB)
+
+	router.GET("/users", rateLimiter.FixedWindowHandler(1*time.Second, 1.0), userController.GetUsers)
+	router.POST("/users", rateLimiter.FixedWindowHandler(1*time.Second, 1.0), userController.CreateUser)
 
 	fmt.Printf("Running on %s\n", port)
 	router.Run(":" + port)
