@@ -2,6 +2,7 @@ package limiter
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -23,8 +24,7 @@ func NewMiddleware(cacheDB *redis.Client) *Middleware {
 	}
 }
 
-func (m *Middleware) TokenBucketHandler(max int,
-	rate float64) gin.HandlerFunc {
+func (m *Middleware) TokenBucketHandler(max int, rate float64) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		allowed, tokensLeft, err := m.TokenBucketLimiter.AllowRequest(context.Background(), c.ClientIP(), max, rate)
 
@@ -33,7 +33,11 @@ func (m *Middleware) TokenBucketHandler(max int,
 			return
 		}
 
+		c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", max))
+		c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", tokensLeft))
+
 		if !allowed {
+			c.Header("X-RateLimit-Retry-After", fmt.Sprintf("%.0f", 1.0/rate))
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
 				"error":       "Too many requests",
 				"tokens_left": tokensLeft,
@@ -45,8 +49,7 @@ func (m *Middleware) TokenBucketHandler(max int,
 	}
 }
 
-func (m *Middleware) LeakingBucketHandler(max int,
-	rate float64) gin.HandlerFunc {
+func (m *Middleware) LeakingBucketHandler(max int, rate float64) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		allowed, tokensLeft, err := m.LikingBucketLimiter.AllowRequest(context.Background(), c.ClientIP(), max, rate)
 
@@ -55,7 +58,11 @@ func (m *Middleware) LeakingBucketHandler(max int,
 			return
 		}
 
+		c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", max))
+		c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", tokensLeft))
+
 		if !allowed {
+			c.Header("X-RateLimit-Retry-After", fmt.Sprintf("%.0f", 1.0/rate))
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
 				"error":       "Too many requests",
 				"tokens_left": tokensLeft,
@@ -76,7 +83,12 @@ func (m *Middleware) FixedWindowHandler(windowSize time.Duration, limit int) gin
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
+
+		c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", limit))
+		c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", remaining))
+
 		if !allowed {
+			c.Header("X-RateLimit-Retry-After", fmt.Sprintf("%.0f", windowSize.Seconds()))
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
 				"error":         "Rate limit exceeded",
 				"requests_left": remaining,
