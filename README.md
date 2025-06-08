@@ -65,17 +65,15 @@ A tolerância a burst (ou burst tolerance) se refere à capacidade de um algorit
     Suponha:
         - Limite: 10 requisições por minuto
 
-        - Dois usuários enviam requisições:
+        Dois usuários enviam requisições:
 
-    Caso com tolerância a burst (ex: Token Bucket):
-        -  Um usuário envia 10 requisições de uma vez → 💚 Aceito (bucket cheio).
+            Caso com tolerância a burst (ex: Token Bucket):
+                -   Um usuário envia 10 requisições de uma vez → 💚 Aceito (bucket cheio).
+                -   Depois, ele precisa esperar o refill dos tokens.
 
-        - Depois, ele precisa esperar o refill dos tokens.
-
-    Caso sem tolerância a burst (ex: Leaking Bucket):
-        - O sistema só permite, por exemplo, 1 requisição a cada 6 segundos.
-
-        - Mesmo que ele tenha feito zero requisições antes, se tentar 10 de uma vez → ❌ Só a 1ª entra, as outras são rejeitadas.
+            Caso sem tolerância a burst (ex: Leaking Bucket):
+                -   O sistema só permite, por exemplo, 1 requisição a cada 6 segundos.
+                -   Mesmo que ele tenha feito zero requisições antes, se tentar 10 de uma vez → ❌ Só a 1ª entra, as outras são rejeitadas.
 
 ## 📊 Comparação rápida - Algoritmo Tolerância a Burst Comportamento:
 
